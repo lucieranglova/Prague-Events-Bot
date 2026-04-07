@@ -1,0 +1,25 @@
+name: Prague Events Bot
+
+on:
+  schedule:
+    - cron: "0 4 * * *"   # 4:00 UTC = 6:00 CEST (letní čas)
+  workflow_dispatch:        # ruční spuštění pro testování
+
+jobs:
+  send-events:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run Prague Events Bot
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DISCORD_WEBHOOK_PRAGUE_EVENTS: ${{ secrets.DISCORD_WEBHOOK_PRAGUE_EVENTS }}
+        run: node prague_events.js
