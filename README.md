@@ -1,81 +1,81 @@
 # Prague-Events-Bot
 # 🗓️ Prague Events Bot
 
-Automatický Discord bot, který každý den ráno hledá zajímavé akce v Praze a okolí a posílá je na Discord. V pátek přijde víkendový digest, ostatní dny jen pokud se najde něco výjimečného.
+A Discord bot that searches for interesting events in Prague and the surrounding area every morning and posts them to Discord. On Fridays it sends a full weekend digest — on other days it only posts if something exceptional is on.
 
 ---
 
-## Jak to funguje
+## How it works
 
-Bot běží každý den v 6:00 (CEST) přes GitHub Actions. Používá GPT-4o-mini se zapnutým web searchem, aby našel aktuální akce — farmářské trhy, výstavy, koncerty, Zoo Praha speciální programy, festivaly a další.
+The bot runs every day at 6:00 AM (CEST) via GitHub Actions. It uses GPT-4o-mini with web search enabled to find current events — farmers markets, exhibitions, concerts, Prague Zoo special programmes, festivals, and more.
 
-**Pátek** → pošle 8–10 akcí na celý víkend, seřazených od nejlevnější  
-**Ostatní dny** → pošle až 3 tipy, jen pokud je něco výjimečného. Pokud ne, mlčí.
+**Friday** → sends 8–10 events for the whole weekend, sorted from cheapest first  
+**Other days** → sends up to 3 tips, only if something exceptional is happening. Otherwise stays silent.
 
-### Cenové kategorie
+### Price categories
 
-| Emoji | Cena |
-|-------|------|
-| 🟢 | Zdarma |
-| 🟡 | Do 200 Kč |
-| 🟠 | Do 500 Kč |
-| 🔴 | 500 Kč a více |
-| ⚪ | Cena neznámá |
+| Emoji | Price |
+|-------|-------|
+| 🟢 | Free |
+| 🟡 | Up to 200 CZK |
+| 🟠 | Up to 500 CZK |
+| 🔴 | 500 CZK and above |
+| ⚪ | Price unknown |
 
-### Ukázka výstupu
+### Example output
 
 ```
-🗓️ Praha tento víkend — 12. – 13. dubna
+🗓️ Prague this weekend — 12–13 April
 ─────────────────────────
-🟢 Farmářský trh Jiřák
-↳ Největší farmářský trh v Praze s čerstvými produkty od lokálních pěstitelů.
-📍 nám. Jiřího z Poděbrad  ·  🕐 So 8:00–13:00  ·  💸 zdarma
+🟢 Jiřák Farmers Market
+↳ Prague's largest farmers market with fresh produce from local growers.
+📍 nám. Jiřího z Poděbrad  ·  🕐 Sat 8:00–13:00  ·  💸 free
 
-🟡 Zoo Praha — komentované krmení tučňáků
-↳ Speciální víkendový program pro celou rodinu.
-📍 Zoo Praha, Troja  ·  🕐 So i Ne 14:00  ·  💸 180 Kč (vstupné do Zoo)
+🟡 Prague Zoo — penguin feeding with commentary
+↳ Special weekend programme for the whole family.
+📍 Prague Zoo, Troja  ·  🕐 Sat & Sun 14:00  ·  💸 180 CZK (zoo entry)
 
-🟢 zdarma  🟡 do 200 Kč  🟠 do 500 Kč  🔴 500 Kč+
+🟢 free  🟡 up to 200 CZK  🟠 up to 500 CZK  🔴 500 CZK+
 ```
 
 ---
 
-## Soubory
+## Files
 
 ```
-prague_events.js          # hlavní skript
+prague_events.js          # main script
 .github/workflows/
   prague_events.yml       # GitHub Actions workflow
 ```
 
 ---
 
-## Nastavení
+## Setup
 
-### 1. Forkni nebo naklonuj repozitář
+### 1. Fork or clone the repository
 
-### 2. Vytvoř Discord webhook
+### 2. Create a Discord webhook
 
-V Discord serveru → Nastavení kanálu → Integrace → Webhooky → Nový webhook. Zkopíruj URL.
+In your Discord server → Channel Settings → Integrations → Webhooks → New Webhook. Copy the URL.
 
-### 3. Přidej Secrets
+### 3. Add Secrets
 
-V repozitáři: **Settings → Secrets and variables → Actions → New repository secret**
+In the repository: **Settings → Secrets and variables → Actions → New repository secret**
 
-| Secret | Popis |
-|--------|-------|
-| `OPENAI_API_KEY` | Tvůj OpenAI API klíč |
-| `DISCORD_WEBHOOK_PRAGUE_EVENTS` | URL Discord webhooku |
+| Secret | Description |
+|--------|-------------|
+| `OPENAI_API_KEY` | Your OpenAI API key |
+| `DISCORD_WEBHOOK_PRAGUE_EVENTS` | Your Discord webhook URL |
 
-### 4. Spusť poprvé ručně
+### 4. Run manually for the first time
 
 **Actions → Prague Events Bot → Run workflow**
 
 ---
 
-## Úprava časování
+## Adjusting the schedule
 
-Bot běží ve `4:00 UTC`, což odpovídá `6:00 CEST` (letní čas). Pro zimní čas (CET, UTC+1) změň v `prague_events.yml`:
+The bot runs at `4:00 UTC`, which equals `6:00 CEST` (summer time). For winter time (CET, UTC+1) update `prague_events.yml`:
 
 ```yaml
 - cron: "0 5 * * *"   # 5:00 UTC = 6:00 CET
@@ -83,9 +83,9 @@ Bot běží ve `4:00 UTC`, což odpovídá `6:00 CEST` (letní čas). Pro zimní
 
 ---
 
-## Technologie
+## Tech stack
 
-- **Runtime:** Node.js 20 (bez externích závislostí, používá nativní `fetch`)
-- **AI:** OpenAI `gpt-4o-mini-search-preview` — prohledává web pro aktuální akce
-- **Automatizace:** GitHub Actions
-- **Výstup:** Discord webhook
+- **Runtime:** Node.js 20 (no external dependencies — uses native `fetch`)
+- **AI:** OpenAI `gpt-4o-mini-search-preview` — searches the web for current events
+- **Automation:** GitHub Actions
+- **Output:** Discord webhook
