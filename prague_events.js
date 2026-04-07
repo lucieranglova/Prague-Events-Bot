@@ -8,60 +8,60 @@ function isFriday() {
 
 function getDateContext() {
   const now = new Date(Date.now() + 2 * 60 * 60 * 1000);
-  const days = ["neděle", "pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota"];
-  const months = ["ledna", "února", "března", "dubna", "května", "června",
-                  "července", "srpna", "září", "října", "listopadu", "prosince"];
-  const today = `${days[now.getUTCDay()]} ${now.getUTCDate()}. ${months[now.getUTCMonth()]} ${now.getUTCFullYear()}`;
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const months = ["January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"];
+  const today = `${days[now.getUTCDay()]} ${now.getUTCDate()} ${months[now.getUTCMonth()]} ${now.getUTCFullYear()}`;
 
   if (isFriday()) {
     const sat = new Date(now); sat.setUTCDate(now.getUTCDate() + 1);
     const sun = new Date(now); sun.setUTCDate(now.getUTCDate() + 2);
-    const period = `${sat.getUTCDate()}. – ${sun.getUTCDate()}. ${months[sun.getUTCMonth()]}`;
+    const period = `${sat.getUTCDate()}–${sun.getUTCDate()} ${months[sun.getUTCMonth()]}`;
     return { today, period };
   }
-  return { today, period: `${now.getUTCDate()}. ${months[now.getUTCMonth()]}` };
+  return { today, period: `${now.getUTCDate()} ${months[now.getUTCMonth()]}` };
 }
 
 function buildPrompt(today, period) {
   if (isFriday()) {
-    return `Dnes je ${today}. Sestavíš mi přehled zajímavých akcí v Praze a okolí na víkend ${period}.
+    return `Today is ${today}. Find a list of interesting events in Prague and the surrounding area for the weekend of ${period}.
 
-Hledej různorodý mix: farmářské trhy, výstavy, koncerty, komentované prohlídky, sportovní akce, festivaly, Zoo Praha speciální programy, venkovní kina, workshopy, pop-up akce, bleší trhy atd.
+Look for a varied mix: farmers markets, exhibitions, concerts, guided tours, sports events, festivals, Prague Zoo special programmes, outdoor cinemas, workshops, pop-up events, flea markets, etc.
 
-Najdi 8–10 akcí. Pro každou uveď název, stručný popis (1 věta), místo konání, datum a čas, cenu vstupného.
-Seřaď akce od nejlevnější (zdarma první).
+Find 8–10 events. For each one include: name, short description (1 sentence), venue, date and time, entry price.
+Sort events from cheapest first (free events at the top).
 
-Odpověz POUZE validním JSON polem, bez markdown, bez preamble:
+Reply with ONLY a valid JSON array, no markdown, no preamble:
 [
   {
-    "nazev": "...",
-    "popis": "...",
-    "misto": "...",
-    "cas": "...",
-    "cena": 0,
-    "cena_text": "zdarma",
-    "odkaz": "..."
+    "name": "...",
+    "description": "...",
+    "venue": "...",
+    "time": "...",
+    "price": 0,
+    "price_text": "free",
+    "link": "..."
   }
 ]
-Kde "cena" je číslo v Kč (0 pro zdarma, -1 pokud neznáš).`;
+Where "price" is a number in CZK (0 for free, -1 if unknown).`;
   } else {
-    return `Dnes je ${today}. Hledej výjimečné nebo časově omezené akce v Praze na dnešní den — věci, které by bylo škoda minout: unikátní pop-up akce, poslední dny výstavy, jednodenní festival, speciální program v Zoo, mimořádný trh apod.
+    return `Today is ${today}. Search for exceptional or time-limited events in Prague for today — things that would be a shame to miss: unique pop-up events, last days of an exhibition, a one-day festival, a special Prague Zoo programme, an unusual market, etc.
 
-Pokud ŽÁDNÁ taková výjimečná akce neexistuje, vrať prázdné pole: []
+If NO such exceptional event exists, return an empty array: []
 
-Pokud výjimečná akce existuje, vrať maximálně 3 akce jako JSON pole:
+If exceptional events exist, return up to 3 as a JSON array:
 [
   {
-    "nazev": "...",
-    "popis": "...",
-    "misto": "...",
-    "cas": "...",
-    "cena": 0,
-    "cena_text": "zdarma",
-    "odkaz": "..."
+    "name": "...",
+    "description": "...",
+    "venue": "...",
+    "time": "...",
+    "price": 0,
+    "price_text": "free",
+    "link": "..."
   }
 ]
-Kde "cena" je číslo v Kč (0 pro zdarma, -1 pokud neznáš). Odpověz POUZE validním JSON, bez markdown.`;
+Where "price" is a number in CZK (0 for free, -1 if unknown). Reply with ONLY valid JSON, no markdown.`;
   }
 }
 
@@ -90,35 +90,35 @@ function parseEvents(raw) {
   return JSON.parse(cleaned);
 }
 
-function priceEmoji(cena) {
-  if (cena === 0) return "🟢";
-  if (cena <= 200) return "🟡";
-  if (cena <= 500) return "🟠";
-  if (cena > 500) return "🔴";
+function priceEmoji(price) {
+  if (price === 0) return "🟢";
+  if (price <= 200) return "🟡";
+  if (price <= 500) return "🟠";
+  if (price > 500) return "🔴";
   return "⚪";
 }
 
 function formatEvent(event) {
-  const emoji = priceEmoji(event.cena ?? -1);
-  let line = `${emoji} **${event.nazev}**`;
-  if (event.popis) line += `\n↳ ${event.popis}`;
+  const emoji = priceEmoji(event.price ?? -1);
+  let line = `${emoji} **${event.name}**`;
+  if (event.description) line += `\n↳ ${event.description}`;
 
   const details = [];
-  if (event.misto) details.push(`📍 ${event.misto}`);
-  if (event.cas) details.push(`🕐 ${event.cas}`);
-  if (event.cena_text) details.push(`💸 ${event.cena_text}`);
+  if (event.venue) details.push(`📍 ${event.venue}`);
+  if (event.time) details.push(`🕐 ${event.time}`);
+  if (event.price_text) details.push(`💸 ${event.price_text}`);
   if (details.length) line += "\n" + details.join("  ·  ");
-  if (event.odkaz && event.odkaz !== "neznámý") line += `\n🔗 ${event.odkaz}`;
+  if (event.link && event.link !== "unknown") line += `\n🔗 ${event.link}`;
 
   return line;
 }
 
 function buildDiscordMessage(events, period) {
   const header = isFriday()
-    ? `🗓️ **Praha tento víkend** — ${period}\n─────────────────────────\n`
-    : `✨ **Tip na dnešní den v Praze**\n─────────────────────────\n`;
+    ? `🗓️ **Prague this weekend** — ${period}\n─────────────────────────\n`
+    : `✨ **Prague tip for today**\n─────────────────────────\n`;
 
-  const legend = "🟢 zdarma  🟡 do 200 Kč  🟠 do 500 Kč  🔴 500 Kč+";
+  const legend = "🟢 free  🟡 up to 200 CZK  🟠 up to 500 CZK  🔴 500 CZK+";
   const blocks = events.map(formatEvent).join("\n\n");
   let message = header + blocks + `\n\n${legend}`;
 
@@ -137,24 +137,24 @@ async function sendDiscord(message) {
 
 async function main() {
   const { today, period } = getDateContext();
-  console.log(`Dnes: ${today}, pátek: ${isFriday()}`);
+  console.log(`Today: ${today}, Friday: ${isFriday()}`);
 
   const prompt = buildPrompt(today, period);
   const raw = await callOpenAI(prompt);
   console.log(`GPT response:\n${raw}`);
 
   const events = parseEvents(raw);
-  console.log(`Nalezeno akcí: ${events.length}`);
+  console.log(`Events found: ${events.length}`);
 
   if (!events.length) {
-    console.log("Žádné výjimečné akce dnes, nepřeposílám.");
+    console.log("No exceptional events today, skipping Discord message.");
     return;
   }
 
   const message = buildDiscordMessage(events, period);
-  console.log(`Discord zpráva:\n${message}`);
+  console.log(`Discord message:\n${message}`);
   await sendDiscord(message);
-  console.log("Hotovo!");
+  console.log("Done!");
 }
 
 main().catch(err => {
