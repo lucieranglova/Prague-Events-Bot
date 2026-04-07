@@ -2,8 +2,8 @@ name: Prague Events Bot
 
 on:
   schedule:
-    - cron: "0 4 * * *"   # 4:00 UTC = 6:00 CEST (letní čas)
-  workflow_dispatch:        # ruční spuštění pro testování
+    - cron: "0 4 * * *"   # 4:00 UTC = 6:00 CEST (summer time)
+  workflow_dispatch:        # manual trigger for testing
 
 jobs:
   send-events:
