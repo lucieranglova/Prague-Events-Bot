@@ -1,7 +1,8 @@
-# Prague-Events-Bot
 # 🗓️ Prague Events Bot
 
 A Discord bot that searches for interesting events in Prague and the surrounding area every morning and posts them to Discord. On Fridays it sends a full weekend digest — on other days it only posts if something exceptional is on.
+
+Supports **English** and **Czech** — choose your language by selecting the matching workflow.
 
 ---
 
@@ -43,9 +44,10 @@ The bot runs every day at 6:00 AM (CEST) via GitHub Actions. It uses GPT-4o-mini
 ## Files
 
 ```
-prague_events.js          # main script
+prague_events.js              # main script (bilingual)
 .github/workflows/
-  prague_events.yml       # GitHub Actions workflow
+  prague_events_en.yml        # English workflow
+  prague_events_cs.yml        # Czech workflow
 ```
 
 ---
@@ -67,15 +69,25 @@ In the repository: **Settings → Secrets and variables → Actions → New repo
 | `OPENAI_API_KEY` | Your OpenAI API key |
 | `DISCORD_WEBHOOK_PRAGUE_EVENTS` | Your Discord webhook URL |
 
-### 4. Run manually for the first time
+### 4. Choose your language
 
-**Actions → Prague Events Bot → Run workflow**
+Both workflows share the same script — the language is controlled by the `LANG` variable set inside each workflow file.
+
+**To use English:** keep only `prague_events_en.yml` in `.github/workflows/`  
+**To use Czech:** keep only `prague_events_cs.yml` in `.github/workflows/`  
+**To run both:** keep both files — useful if you have two separate Discord channels
+
+### 5. Run manually for the first time
+
+**Actions → Prague Events Bot (EN) → Run workflow**  
+or  
+**Actions → Prague Events Bot (CS) → Run workflow**
 
 ---
 
 ## Adjusting the schedule
 
-The bot runs at `4:00 UTC`, which equals `6:00 CEST` (summer time). For winter time (CET, UTC+1) update `prague_events.yml`:
+The bot runs at `4:00 UTC`, which equals `6:00 CEST` (summer time). For winter time (CET, UTC+1) update the cron line in your chosen workflow file:
 
 ```yaml
 - cron: "0 5 * * *"   # 5:00 UTC = 6:00 CET
